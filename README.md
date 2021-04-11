@@ -7,7 +7,7 @@ In Bedrock algorithms are represented as agents which can visit and act upon var
 
 The choice of an agent oriented architecture comes with a number of key benefits:
 
-* Under Bedrock, all algorithms become mathematically verifiable. In essence, if one can characterize the behaviour of a given agent, one knows that the agent will NEVER take any action that is unexpected. This implies that one can always construct a verfiable decision tree of agent behaviour regardless of the underlying structure an agent could happen to be interacting with.
+* Under Bedrock, all algorithms become mathematically verifiable. In essence, if one can characterize the behaviour of a given agent, one knows that the agent will NEVER take any action that is outside it's allowed action set. This implies that one can always construct a verfiable decision tree of agent behaviour regardless of the underlying structure an agent could happen to be interacting with.
 * Structures can be composed together in a modular fashion thus increasing expressibility and reusability
 * Agent oriented design allows for more uniform and generalized parallelization of structure access and mutation. 
 * Agents can spawn other agents as required to accomplish a given goal. This enables an interesting mechanism of algorithm composition.
