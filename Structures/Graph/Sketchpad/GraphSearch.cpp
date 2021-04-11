@@ -1,7 +1,7 @@
 /*
 
     Author: Nathanael Mercaldo
-    Purpose: Implements basic graph and dijkstra shortest path algorithm under adjacency list architecture. 
+    Purpose: Implementation of basic graph and dijkstra shortest path algorithm using adjacency list architecture. 
 
 */
 
@@ -57,13 +57,13 @@ private:
     //Decoration contains per node algorithm specific data.
     struct Decoration {
 
-        //dijkstra: The current shortest path to the parent node. 
+        //dijkstra: The current shortest path from current node to the starting node. 
         unsigned int cost;
         //dijkstra+others: Whether the node has been visited
         bool         isVisited; 
         //dijkstra+others: The node visited right before this node.
         T_KEY        predecessor;
-        //all: A pointer to the parent of the decoration.
+        //all: A pointer to the parent node of the decoration.
         Node*        node;
 
         Decoration() {
