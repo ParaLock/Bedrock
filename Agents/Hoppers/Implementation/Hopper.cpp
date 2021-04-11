@@ -1,0 +1,1 @@
+/* A hopper is a type of agent which moves from one point on a structure to another. At each hope the agent may spawn additional agents to access or mutate the structure in question. */
