@@ -1,5 +1,5 @@
 # Bedrock
-Bedrock is an agent oriented modular, extendable and mathematically verifiable algorithms framework designed with clean architecture and SOLID principles at the forefront. 
+Bedrock is an agent based modular, extendable and mathematically verifiable algorithms framework designed with clean architecture and SOLID principles at the forefront. 
 
 # Overview
 
