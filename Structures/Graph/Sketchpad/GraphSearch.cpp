@@ -8,14 +8,15 @@
 #include <vector>
 #include <climits>
 
+template<typename T_KEY, typename T_NODE_DATA>
 class Graph {
 private:
 
     struct Edge {
 
         unsigned int weight;
-        std::string  to;
-        std::string  from;
+        T_KEY  to;
+        T_KEY  from;
 
         Edge() {
             weight = 0;
@@ -23,7 +24,7 @@ private:
             from = "";
         }
 
-        Edge(std::string to, std::string from, unsigned int weight) {
+        Edge(T_KEY to, T_KEY from, unsigned int weight) {
 
             this->from = from;
             this->to = to;
@@ -33,6 +34,7 @@ private:
 
     struct Node {
 
+        T_NODE_DATA     data;
         std::list<Edge> neighbors;
 
         Node() {
@@ -45,7 +47,7 @@ private:
 
         unsigned int cost;
         bool         isVisited; 
-        std::string  predecessor;
+        T_KEY        predecessor;
         Node*        node;
 
         Decoration() {
@@ -72,20 +74,21 @@ private:
 
     };
 
-    std::unordered_map<std::string, Node>       graph;
-    std::unordered_map<std::string, Decoration> decorations;
+    std::unordered_map<T_KEY, Node>       graph;
+    std::unordered_map<T_KEY, Decoration> decorations;
 public:
 
-    void addNode(std::string name) {
+    void addNode(T_KEY name, T_NODE_DATA data) {
 
         graph.insert({name, Node()});
 
         Node& node = graph.at(name);
+        node.data = data;
 
         decorations.insert({name, Decoration(&node, 0)});
     }
 
-    void addEdge(std::string a, std::string b, int weight) {
+    void addEdge(T_KEY a, T_KEY b, int weight) {
 
         if(graph.find(a) == graph.end()) {
 
@@ -105,7 +108,7 @@ public:
         node.neighbors.emplace_back(b, a, weight);
     }
 
-    void dijkstra(std::list<std::string>& path, std::string start, std::string end) {
+    void dijkstra(std::list<T_KEY>& path, T_KEY start, T_KEY end) {
 
         for (auto itr = decorations.begin(); itr != decorations.end(); itr++) {
 
@@ -115,7 +118,7 @@ public:
 
         decorations[start].cost = 0;
 
-        auto comparator = [this](const std::string& aId, const std::string& bId) -> bool {
+        auto comparator = [this](const T_KEY& aId, const T_KEY& bId) -> bool {
 
             auto& a = this->decorations.at(aId);
             auto& b = this->decorations.at(bId);
@@ -123,13 +126,13 @@ public:
             return a.cost > b.cost;
         };
 
-        std::priority_queue<std::string, std::vector<std::string>, decltype(comparator)> pq(comparator);        
+        std::priority_queue<T_KEY, std::vector<T_KEY>, decltype(comparator)> pq(comparator);        
 
         pq.push(start);
 
         while(!pq.empty()) {
 
-            std::string nodeId = pq.top();
+            T_KEY nodeId = pq.top();
 
             pq.pop();
 
@@ -159,7 +162,7 @@ public:
             }
         }
 
-        std::string pathNode = decorations[end].predecessor;
+        T_KEY pathNode = decorations[end].predecessor;
 
         path.push_back(end);
 
@@ -171,33 +174,49 @@ public:
 
         path.reverse();
     }
+
+    bool getNodeData(T_KEY nodeId, T_NODE_DATA& data) {
+
+        if(graph.find(nodeId) == graph.end()) {
+
+            return false;
+        }
+
+        data = graph.at(nodeId).data;
+
+        return true;
+    }
+
+    static void printPath(std::list<T_KEY>& path) {
+
+        if(path.size() > 0) {
+
+            auto itr = path.begin();
+            int  i   = 0;
+
+            std::cout << "Shortest path: "; 
+
+            for(i; i < path.size() - 1; i++, itr++) {
+
+                std::cout << *itr << " to "; 
+            } 
+
+            std::cout << *itr << std::endl; 
+        }
+    }
 };
 
-void printPath(std::list<std::string>& path) {
-
-    if(path.size() > 0) {
-
-        auto itr = path.begin();
-        int  i   = 0;
-
-        for(i; i < path.size() - 1; i++, itr++) {
-
-            std::cout << *itr << " to "; 
-        } 
-
-        std::cout << *itr << std::endl; 
-    }
-}
+using SGraph = Graph<std::string, int>;
 
 int main(int argc, char** argv) {
 
-    Graph graph;
+    SGraph graph;
 
-    graph.addNode("A");
-    graph.addNode("B");
-    graph.addNode("C");
-    graph.addNode("D");
-    graph.addNode("E");
+    graph.addNode("A", 111);
+    graph.addNode("B", 222);
+    graph.addNode("C", 333);
+    graph.addNode("D", 444);
+    graph.addNode("E", 555);
     
     graph.addEdge("A", "B", 3);
     graph.addEdge("B", "A", 3);
@@ -218,6 +237,5 @@ int main(int argc, char** argv) {
 
     graph.dijkstra(path, "C", "D");
 
-    printPath(path);
-
+    SGraph::printPath(path);
 }
