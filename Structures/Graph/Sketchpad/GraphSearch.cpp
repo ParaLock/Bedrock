@@ -1,3 +1,10 @@
+/*
+
+    Author: Nathanael Mercaldo
+    Purpose: Implements basic graph and dijkstra shortest path algorithm under adjacency list architecture. 
+
+*/
+
 #include <iostream>
 #include <list>
 #include <unordered_map>
@@ -12,8 +19,10 @@ template<typename T_KEY, typename T_NODE_DATA>
 class Graph {
 private:
 
+    //Model of a graph edge
     struct Edge {
 
+        //The non-negative weight of a given edge.
         unsigned int weight;
         T_KEY  to;
         T_KEY  from;
@@ -32,8 +41,10 @@ private:
         }
     };
 
+    //Model of a graph node
     struct Node {
-
+        
+        //Custom node data provided at node creation time.
         T_NODE_DATA     data;
         std::list<Edge> neighbors;
 
@@ -43,11 +54,16 @@ private:
         }
     };
 
+    //Decoration contains per node algorithm specific data.
     struct Decoration {
 
+        //dijkstra: The current shortest path to the parent node. 
         unsigned int cost;
+        //dijkstra+others: Whether the node has been visited
         bool         isVisited; 
+        //dijkstra+others: The node visited right before this node.
         T_KEY        predecessor;
+        //all: A pointer to the parent of the decoration.
         Node*        node;
 
         Decoration() {
@@ -78,6 +94,9 @@ private:
     std::unordered_map<T_KEY, Decoration> decorations;
 public:
 
+    /*
+        Purpose: Adds a new node to the graph
+    */
     void addNode(T_KEY name, T_NODE_DATA data) {
 
         graph.insert({name, Node()});
@@ -88,6 +107,9 @@ public:
         decorations.insert({name, Decoration(&node, 0)});
     }
 
+    /*  
+        Purpose: Adds a new edge connecting two existing nodes in the graph.
+    */
     void addEdge(T_KEY a, T_KEY b, int weight) {
 
         if(graph.find(a) == graph.end()) {
@@ -108,16 +130,23 @@ public:
         node.neighbors.emplace_back(b, a, weight);
     }
 
+    /*  
+        Purpose: Finds the shortest path between start and end nodes using dijkstra shortest path algorithm.
+    */
     void dijkstra(std::list<T_KEY>& path, T_KEY start, T_KEY end) {
 
+        //First we must reset all node decorations relevant to our search.
         for (auto itr = decorations.begin(); itr != decorations.end(); itr++) {
 
+            //Reset generic decoration properties.
             itr->second.reset();
+            //Reset dijkstra specific information.
             itr->second.cost = INT_MAX;
         }
 
         decorations[start].cost = 0;
 
+        //This lambda compares the cost of two nodes based on their relative distances from the starting node.
         auto comparator = [this](const T_KEY& aId, const T_KEY& bId) -> bool {
 
             auto& a = this->decorations.at(aId);
@@ -136,22 +165,27 @@ public:
 
             pq.pop();
 
+            //Get the decorations for the current node being visited such that we can get dijkstra specific details.
             Decoration& dec    = decorations.at(nodeId);
+            //Mark the current node as visited.
             dec.isVisited      = true;
             
             auto& neighbors = dec.node->neighbors;
 
+            //Loop through all edges adjacent to the current node.
             for(auto itr = neighbors.begin(); itr != neighbors.end(); itr++) {
 
                 Edge& e = *itr;
                 
+                //Get the dijkstra specific details for the neighboring node. 
                 Decoration& nDec = decorations.at(e.to);
 
                 if(!nDec.isVisited) {
 
                     int newCost = e.weight + dec.cost;
-
-                    if(nDec.cost > newCost) {
+                    
+                    //If we found a better (shorter) path to our neighboring node, then update the cost of traversal to said neighbor.
+                    if(nDec.cost > newCost) { 
 
                         nDec.cost        = newCost;
                         nDec.predecessor = nodeId; 
@@ -162,6 +196,8 @@ public:
             }
         }
 
+        //Backtrack over the search tree to determine the nodes in our shortest path.
+        //--
         T_KEY pathNode = decorations[end].predecessor;
 
         path.push_back(end);
@@ -173,8 +209,12 @@ public:
         }
 
         path.reverse();
+        //--
     }
 
+    /*  
+        Purpose: Retrieves user provided data for a given node.
+    */
     bool getNodeData(T_KEY nodeId, T_NODE_DATA& data) {
 
         if(graph.find(nodeId) == graph.end()) {
@@ -187,6 +227,9 @@ public:
         return true;
     }
 
+    /*  
+        Purpose: Prints a given path in our graph. 
+    */
     static void printPath(std::list<T_KEY>& path) {
 
         if(path.size() > 0) {
